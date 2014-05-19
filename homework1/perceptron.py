@@ -83,7 +83,7 @@ def modify(w, (x,y)):
 # PLA Algorithm
 def pla(training_set, num_iters=1024):
   extra_info = []
-  w = random_f()
+  w = array([0, 0 , 0])
   extra_info.append(calculate_classification_error(training_set, w))
   iters = 0
   while num_iters > iters:
