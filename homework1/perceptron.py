@@ -72,9 +72,11 @@ def plot_data(training_set, f):
 
 # Get a misclassified point
 def get_misclassified_point(training_set, w):
+  mis_pts = []
   for item in training_set:
     if classify(item[0],w) != item[1]:
-      return item
+      mis_pts.append(item)
+  return choice(mis_pts)
 
 # Modify w
 def modify(w, (x,y)):
