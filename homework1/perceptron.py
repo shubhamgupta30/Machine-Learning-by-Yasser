@@ -76,6 +76,8 @@ def get_misclassified_point(training_set, w):
   for item in training_set:
     if classify(item[0],w) != item[1]:
       mis_pts.append(item)
+  if mis_pts == []:
+    return None
   return choice(mis_pts)
 
 # Modify w
@@ -83,21 +85,19 @@ def modify(w, (x,y)):
   return w + y*x
 
 # PLA Algorithm
-def pla(training_set, num_iters=1024):
+def pla(training_set, num_iters=1024, run_to_completion=False):
   extra_info = []
   w = array([0, 0 , 0])
   extra_info.append(calculate_classification_error(training_set, w))
-  iters = 0
-  while num_iters > iters:
-    try:
-      (x,y) = get_misclassified_point(training_set, w)
-    except TypeError:
-      print "No more misclassified points after %d iterations" % (iters)
-      return w, extra_info
-    w = modify(w, (x,y))
+  iters = 1
+  while run_to_completion or num_iters > iters:
+    point = get_misclassified_point(training_set, w)
+    if point == None:
+      return w, extra_info, iters
+    w = modify(w, point)
     extra_info.append(calculate_classification_error(training_set, w))
     iters += 1
-  return w, extra_info
+  return w, extra_info, iters
 
 ##########################################################################
 
@@ -124,15 +124,25 @@ def calculate_Eout(f, g, num_iters):
   return misclassified/num_iters
 
 
-def generate_and_solve_learning_instance(size, algo_iterations = 1024, eout_iters=1024):
+def generate_and_solve_learning_instance(size, algo_iterations = 1024, run_to_completion=False,
+    eout_iters=3000, draw_plots=True):
   f = random_f()
   training_data = training_set_random(size, f)
-  plot_data(training_data, f)
-  w, extra_info = pla(training_data, algo_iterations)
-  plot_line(w)
-  pylab.show()
-  plot_error(extra_info)
-  pylab.show()
-  print "Eout estimate %f" % calculate_Eout(f, w, eout_iters)
-  return training_data, f
+  w, extra_info, iters = pla(training_data, algo_iterations, run_to_completion)
+  eout = calculate_Eout(f, w, eout_iters)
+  if(draw_plots):
+    plot_data(training_data, f)
+    plot_line(w)
+    pylab.show()
+    plot_error(extra_info)
+    pylab.show()
+  return iters, eout
 
+def get_average_values(n, num_iters):
+  iters = [0]*num_iters
+  eout = [0]*num_iters
+  for i in xrange(num_iters):
+    (iters[i], eout[i]) = generate_and_solve_learning_instance(
+        n, run_to_completion=True, draw_plots=False)
+  return average(iters), average(eout)
+  
