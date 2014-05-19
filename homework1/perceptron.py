@@ -1,5 +1,5 @@
 from random import choice
-from numpy import array, dot, random
+from numpy import array, dot, random, average
 import pylab
 
 # Sign Function
@@ -142,7 +142,9 @@ def get_average_values(n, num_iters):
   iters = [0]*num_iters
   eout = [0]*num_iters
   for i in xrange(num_iters):
-    (iters[i], eout[i]) = generate_and_solve_learning_instance(
-        n, run_to_completion=True, draw_plots=False)
+    f = random_f()
+    training_data = training_set_random(n, f)
+    w, extra_info, iters[i] = pla(training_data, run_to_completion=True)
+    eout[i] = calculate_Eout(f, w, num_iters=3000)
   return average(iters), average(eout)
   
