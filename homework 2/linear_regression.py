@@ -67,17 +67,19 @@ def flip_ys(Y, percent=0.1):
   for i in cords:
     Y[i] = -Y[i]
   
-def ein_with_noise(size=1000, iters=1000, noise_percent=0.1):
+def ein_with_noise(size=1000, iters=1000, noise_percent=0.1, transform=True):
   return average([nonlinear_linear_regression(
     size=size,
     plot_input=False,
     introduce_noise=True,
-    noise_percent=noise_percent)[1] for i in xrange(iters)])
+    noise_percent=noise_percent,
+    transform=transform)[1] for i in xrange(iters)])
 
 def nonlinear_linear_regression(size=1000,
     introduce_noise=False,
     noise_percent=0.1,
-    plot_input=False):
+    plot_input=False,
+    transform=True):
   X = create_training_set(size)[0]
   Y = array([nonlinear_classification_fn(point[1], point[2]) for point in X])
   if introduce_noise:
@@ -88,7 +90,9 @@ def nonlinear_linear_regression(size=1000,
     pylab.scatter([item[1] for item in X], [item[2] for item in X],
         c=Y, s=50, alpha=0.5)
     pylab.show()
-  X_new = transform_X(X)
+  X_new = X
+  if transform:
+    X_new = transform_X(X)
   g = pinv(X_new).dot(Y)
   return g, compute_ein(X_new,Y,g)
 
